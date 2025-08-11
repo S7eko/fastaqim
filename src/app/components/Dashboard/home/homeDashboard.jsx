@@ -16,6 +16,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Exame from "../addExame/addExme";
 import QuestionBank from "../questions/questionBank";
+import ProgressTracker from "../progres/progressTracker";
 
 const HomeDashboard = () => {
   const [selectedAction, setSelectedAction] = useState(null);
@@ -152,12 +153,9 @@ const HomeDashboard = () => {
           <div className="mt-6">
             {selectedAction === "question-bank" && <QuestionBank />}
             {selectedAction === "add-session" && <Exame />}
-            {selectedAction === "grades" && (
-              <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
-                <h3 className="text-xl font-semibold text-gray-800 mb-4">تتبع التقدم</h3>
-                <p className="text-gray-600">إحصائيات وتقارير تقدم الطلاب في الحفظ والتلاوة...</p>
-              </div>
-            )}
+            {selectedAction === "grades" && <ProgressTracker />}
+              
+            
             {selectedAction === "approve" && (
               <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">قبول الطلاب</h3>
