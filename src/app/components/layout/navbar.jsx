@@ -32,12 +32,12 @@ const Navbar = () => {
         }`}
       >
         <li>
-          <a
-            href="#"
+          <Link
+            href="/"
             className="hover:text-yellow-300 py-2 px-4 lg:ml-4 transition-colors duration-200 block text-center lg:text-left"
           >
             الرئيسية
-          </a>
+          </Link>
         </li>
         <li>
           <Link href="/apprefrance/dashboard"
