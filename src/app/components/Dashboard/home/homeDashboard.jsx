@@ -20,7 +20,7 @@ const HomeDashboard = () => {
   const [selectedAction, setSelectedAction] = useState(null);
 
   const actions = [
-    { id: "add-session", icon: faPlus, label: "إضافة جلسة" },
+    { id: "add-session", icon: faPlus, label: "اداره الاسئله" },
     { id: "grades", icon: faChartLine, label: "تتبع التقدم" },
     { id: "approve", icon: faUserCheck, label: "قبول الطلاب" },
    
