@@ -1,13 +1,22 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faQuran, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import { faQuran, faCheckCircle, faBook } from '@fortawesome/free-solid-svg-icons';
 
 const Exame = () => {
+  const [examName, setExamName] = useState('');
   const [selectedPart, setSelectedPart] = useState('');
   const [questions, setQuestions] = useState([]);
   const [selectedQuestions, setSelectedQuestions] = useState([]);
 
-  // نموذج لأسئلة قرآنية (يمكن استبدالها ببيانات حقيقية من API)
+  // قائمة بأسماء الامتحانات المتاحة (يمكن جلبها من API)
+  const availableExams = [
+    'امتحان منتصف الفصل - التجويد',
+    'امتحان نهاية الفصل - الحفظ',
+    'اختبار شهري - التفسير',
+    'امتحان تجريبي - القرآن الكريم'
+  ];
+
+  // نموذج لأسئلة قرآنية
   const quranicQuestions = {
     'جزء عم': [
       { id: 1, text: 'ما هي السورة التي تبدأ ب "سبح اسم ربك الأعلى"؟', options: ['العلق', 'الأعلى', 'الغاشية', 'الفجر'], answer: 1 },
@@ -40,6 +49,10 @@ const Exame = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!examName) {
+      alert('الرجاء اختيار اسم الامتحان');
+      return;
+    }
     if (selectedQuestions.length === 0) {
       alert('الرجاء اختيار أسئلة على الأقل');
       return;
@@ -47,16 +60,18 @@ const Exame = () => {
 
     const selectedQuestionsData = questions.filter(q => selectedQuestions.includes(q.id));
     const examData = {
+      examName,
       part: selectedPart,
       questions: selectedQuestionsData,
-      date: new Date().toISOString()
+      date: new Date().toISOString(),
+      totalPoints: selectedQuestionsData.length * 5 // 5 نقاط لكل سؤال (يمكن تعديلها)
     };
 
     console.log('Exam Data:', examData);
-    // هنا يمكنك إرسال البيانات إلى الخادم
-    alert(`تم اختيار ${selectedQuestions.length} سؤال بنجاح`);
+    alert(`تم إضافة ${selectedQuestions.length} سؤال إلى "${examName}" بنجاح`);
 
     // إعادة تعيين النموذج
+    setExamName('');
     setSelectedPart('');
     setQuestions([]);
     setSelectedQuestions([]);
@@ -67,11 +82,35 @@ const Exame = () => {
       <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
         <div className="text-center mb-8">
           <FontAwesomeIcon icon={faQuran} className="text-4xl text-green-600 mb-3" />
-          <h2 className="text-3xl font-bold text-gray-800">إضافة اختبار قرآني</h2>
-          <p className="mt-2 text-lg text-gray-600">اختر الجزء ثم حدد الأسئلة المطلوبة</p>
+          <h2 className="text-3xl font-bold text-gray-800">إضافة أسئلة إلى امتحان قرآني</h2>
+          <p className="mt-2 text-lg text-gray-600">اختر الامتحان والجزء ثم حدد الأسئلة المطلوبة</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* اختيار اسم الامتحان */}
+          <div className="space-y-2">
+            <label className="block text-lg font-medium text-gray-700 text-right">
+              اختر اسم الامتحان
+            </label>
+            <div className="relative">
+              <FontAwesomeIcon
+                icon={faBook}
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              />
+              <select
+                value={examName}
+                onChange={(e) => setExamName(e.target.value)}
+                className="block w-full p-3 pl-10 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 text-lg text-right"
+                required
+              >
+                <option value="">-- اختر امتحان --</option>
+                {availableExams.map((exam, index) => (
+                  <option key={index} value={exam}>{exam}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           {/* اختيار الجزء */}
           <div className="space-y-2">
             <label className="block text-lg font-medium text-gray-700 text-right">
@@ -95,9 +134,16 @@ const Exame = () => {
           {/* عرض الأسئلة عند اختيار جزء */}
           {selectedPart && (
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-gray-800 text-right">
-                أسئلة {selectedPart}
-              </h3>
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-semibold text-gray-800 text-right">
+                  أسئلة {selectedPart}
+                </h3>
+                {examName && (
+                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
+                    {examName}
+                  </span>
+                )}
+              </div>
 
               <div className="space-y-3">
                 {questions.map((question) => (
@@ -139,13 +185,15 @@ const Exame = () => {
           <div className="pt-4">
             <button
               type="submit"
-              disabled={selectedQuestions.length === 0}
-              className={`w-full py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white ${selectedQuestions.length > 0 ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
+              disabled={!examName || selectedQuestions.length === 0}
+              className={`w-full py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white ${examName && selectedQuestions.length > 0 ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
             >
-              {selectedQuestions.length > 0 ? (
-                `إضافة ${selectedQuestions.length} سؤال إلى الاختبار`
-              ) : (
+              {examName && selectedQuestions.length > 0 ? (
+                `إضافة ${selectedQuestions.length} سؤال إلى "${examName}"`
+              ) : examName ? (
                 'اختر أسئلة لإضافتها'
+              ) : (
+                'اختر امتحان أولا'
               )}
             </button>
           </div>
