@@ -93,10 +93,7 @@ const Exame = () => {
               اختر اسم الامتحان
             </label>
             <div className="relative">
-              <FontAwesomeIcon
-                icon={faBook}
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              />
+              
               <select
                 value={examName}
                 onChange={(e) => setExamName(e.target.value)}
