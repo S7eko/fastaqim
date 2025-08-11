@@ -15,15 +15,19 @@ import {
   faUserGraduate
 } from "@fortawesome/free-solid-svg-icons";
 import Exame from "../addExame/addExme";
+import QuestionBank from "../questions/questionBank";
 
 const HomeDashboard = () => {
   const [selectedAction, setSelectedAction] = useState(null);
 
   const actions = [
+    { id: "question-bank", icon: faFileAlt, label: "بنك أسئلة" },
     { id: "add-session", icon: faPlus, label: "اداره الاسئله" },
     { id: "grades", icon: faChartLine, label: "تتبع التقدم" },
     { id: "approve", icon: faUserCheck, label: "قبول الطلاب" },
-   
+    { id: "reports", icon: faFileAlt, label: "التقارير" },
+    
+
     { id: "students", icon: faUserGraduate, label: "إدارة الطلاب" }
   ];
 
@@ -146,6 +150,7 @@ const HomeDashboard = () => {
 
           {/* Action Content */}
           <div className="mt-6">
+            {selectedAction === "question-bank" && <QuestionBank />}
             {selectedAction === "add-session" && <Exame />}
             {selectedAction === "grades" && (
               <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
