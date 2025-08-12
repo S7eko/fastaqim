@@ -10,7 +10,7 @@ const Navbar = () => {
       {/* Logo and Branding */}
       <div className="flex items-center">
         <span className="text-xl sm:text-2xl md:text-3xl font-bold text-yellow-300 font-tajawal">
-          فَاسْتَقِمْ كَمَا أُمِرْتَ
+          تـبـيـان الـهـدى
         </span>
       </div>
 
@@ -57,7 +57,7 @@ const Navbar = () => {
             </li>
             <li className="w-full lg:w-auto border-b lg:border-b-0 border-green-600">
               <Link
-                href="#"
+                href="/apprefrance/Services"
                 className="hover:text-yellow-300 py-3 px-6 lg:py-2 lg:px-4 transition-colors duration-200 block text-center lg:text-right"
                 onClick={() => setIsOpen(false)}
               >
