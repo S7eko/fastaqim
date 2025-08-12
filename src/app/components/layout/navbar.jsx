@@ -52,7 +52,7 @@ const Navbar = () => {
                 className="hover:text-yellow-300 py-3 px-6 lg:py-2 lg:px-4 transition-colors duration-200 block text-center lg:text-right"
                 onClick={() => setIsOpen(false)}
               >
-                القرآن الكريم
+                 الاحاديث
               </Link>
             </li>
             <li className="w-full lg:w-auto border-b lg:border-b-0 border-green-600">
@@ -61,7 +61,8 @@ const Navbar = () => {
                 className="hover:text-yellow-300 py-3 px-6 lg:py-2 lg:px-4 transition-colors duration-200 block text-center lg:text-right"
                 onClick={() => setIsOpen(false)}
               >
-                المصحف المفسر
+                القرآن الكريم
+
               </Link>
             </li>
             <li className="w-full lg:w-auto border-b lg:border-b-0 border-green-600">
