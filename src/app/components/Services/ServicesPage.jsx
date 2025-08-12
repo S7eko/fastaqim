@@ -403,15 +403,7 @@ const ServicesPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 pt-24 pb-20" dir="rtl">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 bg-white text-gray-800 shadow-sm z-10 border-b border-gray-200">
-        <div className="container mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold text-center">منصة القرآن الكريم</h1>
-          <div className="text-center mt-2 space-y-1">
-            <p className="text-blue-600 text-sm">تَبَارَكَ الَّذِي بِيَدِهِ الْمُلْكُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ</p>
-            <p className="text-gray-500 text-xs">وَمَا خَلَقْتُ الْجِنَّ وَالْإِنسَ إِلَّا لِيَعْبُدُونِ</p>
-          </div>
-        </div>
-      </header>
+     
 
       {/* Main Content */}
       <main className="container mx-auto px-4 max-w-4xl">
