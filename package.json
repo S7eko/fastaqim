@@ -14,7 +14,8 @@
     "@fortawesome/react-fontawesome": "^0.2.3",
     "next": "^14.2.14",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-toastify": "^11.0.5"
   },
   "devDependencies": {
     "eslint": "^8",
