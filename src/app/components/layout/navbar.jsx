@@ -214,6 +214,15 @@ const Navbar = () => {
                 الإذاعة
               </Link>
             </li>
+            <li>
+              <Link
+                href="/apprefrance/radioPlayer"
+                className="hover:text-yellow-300 py-3 px-6 transition-colors duration-200 block text-center dark:hover:text-yellow-400"
+                onClick={() => setIsOpen(false)}
+              >
+                الإذاعة
+              </Link>
+            </li>
           </ul>
 
           {/* Mobile Login Button */}
