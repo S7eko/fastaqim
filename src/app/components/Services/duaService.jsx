@@ -63,7 +63,7 @@ const DuaService = () => {
     const categories = Object.keys(azkarData).filter(cat => cat !== 'stop');
 
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 ">
         {categories.map(category => (
           <div
             key={category}
@@ -73,16 +73,18 @@ const DuaService = () => {
               }`}
           >
             <div className="flex items-center">
-              <div className={`p-3 rounded-full mr-4 ${darkMode ? 'bg-blue-900' : 'bg-blue-100'
-                }`}>
+              <div
+                className={`p-3 rounded-full ml-[15px] ${darkMode ? 'bg-blue-900' : 'bg-blue-100'
+                  }`}
+              >
                 <FontAwesomeIcon
                   icon={getCategoryIcon(category)}
-                  className={`text-xl ${darkMode ? 'text-blue-300' : 'text-blue-600'
+                  className={`text-xl ${darkMode ? 'text-blue-300' : 'text-blue-600 '
                     }`}
                 />
               </div>
-              <div>
-                <h3 className={`text-lg font-bold ${darkMode ? 'text-gray-100' : 'text-gray-800'
+              <div >
+                <h3 className={`text-lg font-bold ${darkMode ? 'text-gray-100' : 'text-gray-800 mr-1' 
                   }`}>
                   {category}
                 </h3>
@@ -200,7 +202,7 @@ const DuaService = () => {
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'} py-8 px-4 sm:px-6`} dir="rtl">
       <main className="container mx-auto max-w-6xl">
         {/* العنوان الرئيسي */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 mt-[75px]">
           <h1 className={`text-3xl sm:text-4xl font-bold mb-3 ${darkMode ? 'text-gray-100' : 'text-gray-800'
             }`}>
             <FontAwesomeIcon
