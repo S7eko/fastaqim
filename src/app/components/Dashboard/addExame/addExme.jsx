@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faQuran, faCheckCircle, faBook } from '@fortawesome/free-solid-svg-icons';
+import { faQuran, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 
 const Exame = () => {
   const [examName, setExamName] = useState('');
@@ -8,7 +8,6 @@ const Exame = () => {
   const [questions, setQuestions] = useState([]);
   const [selectedQuestions, setSelectedQuestions] = useState([]);
 
-  // قائمة بأسماء الامتحانات المتاحة (يمكن جلبها من API)
   const availableExams = [
     'امتحان منتصف الفصل - التجويد',
     'امتحان نهاية الفصل - الحفظ',
@@ -16,7 +15,6 @@ const Exame = () => {
     'امتحان تجريبي - القرآن الكريم'
   ];
 
-  // نموذج لأسئلة قرآنية
   const quranicQuestions = {
     'جزء عم': [
       { id: 1, text: 'ما هي السورة التي تبدأ ب "سبح اسم ربك الأعلى"؟', options: ['العلق', 'الأعلى', 'الغاشية', 'الفجر'], answer: 1 },
@@ -38,13 +36,9 @@ const Exame = () => {
   };
 
   const toggleQuestionSelection = (questionId) => {
-    setSelectedQuestions(prev => {
-      if (prev.includes(questionId)) {
-        return prev.filter(id => id !== questionId);
-      } else {
-        return [...prev, questionId];
-      }
-    });
+    setSelectedQuestions(prev =>
+      prev.includes(questionId) ? prev.filter(id => id !== questionId) : [...prev, questionId]
+    );
   };
 
   const handleSubmit = (e) => {
@@ -64,13 +58,12 @@ const Exame = () => {
       part: selectedPart,
       questions: selectedQuestionsData,
       date: new Date().toISOString(),
-      totalPoints: selectedQuestionsData.length * 5 // 5 نقاط لكل سؤال (يمكن تعديلها)
+      totalPoints: selectedQuestionsData.length * 5
     };
 
     console.log('Exam Data:', examData);
     alert(`تم إضافة ${selectedQuestions.length} سؤال إلى "${examName}" بنجاح`);
 
-    // إعادة تعيين النموذج
     setExamName('');
     setSelectedPart('');
     setQuestions([]);
@@ -78,45 +71,40 @@ const Exame = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+    <div className="min-h-screen bg-[var(--background)] py-8 px-4 sm:px-6 lg:px-8 text-[var(--foreground)]">
+      <div className="max-w-3xl mx-auto bg-[var(--card)] p-8 rounded-lg shadow-lg text-[var(--card-foreground)]">
         <div className="text-center mb-8">
-          <FontAwesomeIcon icon={faQuran} className="text-4xl text-green-600 mb-3" />
-          <h2 className="text-3xl font-bold text-gray-800">إضافة أسئلة إلى امتحان قرآني</h2>
-          <p className="mt-2 text-lg text-gray-600">اختر الامتحان والجزء ثم حدد الأسئلة المطلوبة</p>
+          <FontAwesomeIcon icon={faQuran} className="text-4xl text-[var(--primary)] mb-3" />
+          <h2 className="text-3xl font-bold">إضافة أسئلة إلى امتحان قرآني</h2>
+          <p className="mt-2 text-lg opacity-80">اختر الامتحان والجزء ثم حدد الأسئلة المطلوبة</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* اختيار اسم الامتحان */}
           <div className="space-y-2">
-            <label className="block text-lg font-medium text-gray-700 text-right">
+            <label className="block text-lg font-medium text-right">
               اختر اسم الامتحان
             </label>
-            <div className="relative">
-              
-              <select
-                value={examName}
-                onChange={(e) => setExamName(e.target.value)}
-                className="block w-full p-3 pl-10 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 text-lg text-right"
-                required
-              >
-                <option value="">-- اختر امتحان --</option>
-                {availableExams.map((exam, index) => (
-                  <option key={index} value={exam}>{exam}</option>
-                ))}
-              </select>
-            </div>
+            <select
+              value={examName}
+              onChange={(e) => setExamName(e.target.value)}
+              className="block w-full p-3 border border-[var(--primary)] rounded-md shadow-sm focus:ring-[var(--primary)] focus:border-[var(--primary)] text-lg text-right bg-[var(--background)] text-[var(--foreground)]"
+              required
+            >
+              <option value="">-- اختر امتحان --</option>
+              {availableExams.map((exam, index) => (
+                <option key={index} value={exam}>{exam}</option>
+              ))}
+            </select>
           </div>
 
-          {/* اختيار الجزء */}
           <div className="space-y-2">
-            <label className="block text-lg font-medium text-gray-700 text-right">
+            <label className="block text-lg font-medium text-right">
               اختر الجزء القرآني
             </label>
             <select
               value={selectedPart}
               onChange={handlePartChange}
-              className="block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 text-lg text-right"
+              className="block w-full p-3 border border-[var(--primary)] rounded-md shadow-sm focus:ring-[var(--primary)] focus:border-[var(--primary)] text-lg text-right bg-[var(--background)] text-[var(--foreground)]"
               required
             >
               <option value="">-- اختر جزء --</option>
@@ -128,15 +116,14 @@ const Exame = () => {
             </select>
           </div>
 
-          {/* عرض الأسئلة عند اختيار جزء */}
           {selectedPart && (
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3 className="text-xl font-semibold text-gray-800 text-right">
+                <h3 className="text-xl font-semibold">
                   أسئلة {selectedPart}
                 </h3>
                 {examName && (
-                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
+                  <span className="bg-[var(--primary-foreground)] text-[var(--primary)] px-3 py-1 rounded-full text-sm">
                     {examName}
                   </span>
                 )}
@@ -146,16 +133,19 @@ const Exame = () => {
                 {questions.map((question) => (
                   <div
                     key={question.id}
-                    className={`p-4 border rounded-lg transition-all ${selectedQuestions.includes(question.id) ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-gray-300'}`}
+                    className={`p-4 border rounded-lg transition-all ${selectedQuestions.includes(question.id)
+                        ? 'border-[var(--primary)] bg-[var(--primary-foreground)]'
+                        : 'border-gray-300 hover:border-[var(--primary)]'
+                      }`}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <p className="text-lg font-medium text-gray-800 text-right mb-2">{question.text}</p>
+                        <p className="text-lg font-medium text-right mb-2">{question.text}</p>
                         <ul className="space-y-1 text-right">
                           {question.options.map((option, idx) => (
-                            <li key={idx} className="text-gray-600">
+                            <li key={idx}>
                               {option} {idx === question.answer && (
-                                <span className="text-green-600 text-sm mr-1">(الإجابة الصحيحة)</span>
+                                <span className="text-[var(--primary)] text-sm mr-1">(الإجابة الصحيحة)</span>
                               )}
                             </li>
                           ))}
@@ -164,12 +154,12 @@ const Exame = () => {
                       <button
                         type="button"
                         onClick={() => toggleQuestionSelection(question.id)}
-                        className={`ml-4 p-2 rounded-full ${selectedQuestions.includes(question.id) ? 'text-green-600 bg-green-100' : 'text-gray-400 hover:text-gray-600'}`}
+                        className={`ml-4 p-2 rounded-full ${selectedQuestions.includes(question.id)
+                            ? 'text-[var(--primary)] bg-[var(--primary-foreground)]'
+                            : 'text-gray-400 hover:text-[var(--primary)]'
+                          }`}
                       >
-                        <FontAwesomeIcon
-                          icon={faCheckCircle}
-                          className={`text-xl ${selectedQuestions.includes(question.id) ? 'opacity-100' : 'opacity-50 hover:opacity-70'}`}
-                        />
+                        <FontAwesomeIcon icon={faCheckCircle} className="text-xl" />
                       </button>
                     </div>
                   </div>
@@ -178,20 +168,20 @@ const Exame = () => {
             </div>
           )}
 
-          {/* زر الإرسال */}
           <div className="pt-4">
             <button
               type="submit"
               disabled={!examName || selectedQuestions.length === 0}
-              className={`w-full py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white ${examName && selectedQuestions.length > 0 ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
+              className={`w-full py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-[var(--primary-foreground)] ${examName && selectedQuestions.length > 0
+                  ? 'bg-[var(--primary)] hover:opacity-90'
+                  : 'bg-gray-400 cursor-not-allowed'
+                }`}
             >
-              {examName && selectedQuestions.length > 0 ? (
-                `إضافة ${selectedQuestions.length} سؤال إلى "${examName}"`
-              ) : examName ? (
-                'اختر أسئلة لإضافتها'
-              ) : (
-                'اختر امتحان أولا'
-              )}
+              {examName && selectedQuestions.length > 0
+                ? `إضافة ${selectedQuestions.length} سؤال إلى "${examName}"`
+                : examName
+                  ? 'اختر أسئلة لإضافتها'
+                  : 'اختر امتحان أولا'}
             </button>
           </div>
         </form>

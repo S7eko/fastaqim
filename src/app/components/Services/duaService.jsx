@@ -18,17 +18,14 @@ const DuaService = () => {
   const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [darkMode, setDarkMode] = useState(false);
 
-  // جلب بيانات الأذكار من API
+  // جلب بيانات الأذكار
   useEffect(() => {
     const fetchAzkar = async () => {
       try {
         setLoading(true);
         const response = await fetch('https://raw.githubusercontent.com/nawafalqari/azkar-api/56df51279ab6eb86dc2f6202c7de26c8948331c1/azkar.json');
-        if (!response.ok) {
-          throw new Error('فشل في تحميل بيانات الأذكار');
-        }
+        if (!response.ok) throw new Error('فشل في تحميل بيانات الأذكار');
         const data = await response.json();
         setAzkarData(data);
       } catch (err) {
@@ -37,59 +34,42 @@ const DuaService = () => {
         setLoading(false);
       }
     };
-
     fetchAzkar();
   }, []);
 
-  // تصفية الأذكار حسب البحث
   const filteredAzkar = () => {
     if (!selectedCategory || !azkarData) return [];
-
     const categoryData = azkarData[selectedCategory];
     if (!categoryData) return [];
-
     const flattenedData = Array.isArray(categoryData[0]) ? categoryData.flat() : categoryData;
-
     return flattenedData.filter(item =>
       item.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()))
     );
   };
 
-  // عرض تصنيفات الأذكار
   const renderCategories = () => {
     if (!azkarData) return null;
-
     const categories = Object.keys(azkarData).filter(cat => cat !== 'stop');
 
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 ">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {categories.map(category => (
           <div
             key={category}
             onClick={() => setSelectedCategory(category)}
-            className={`p-5 rounded-xl shadow-sm cursor-pointer transition-all duration-300 transform hover:scale-[1.02] ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-white hover:bg-gray-50'
-              } border ${darkMode ? 'border-gray-600' : 'border-gray-200'
-              }`}
+            className="p-5 rounded-xl shadow-sm cursor-pointer transition-all duration-300 transform hover:scale-[1.02] bg-[var(--card)] hover:bg-[var(--card-hover)] border border-[var(--border)]"
           >
             <div className="flex items-center">
-              <div
-                className={`p-3 rounded-full ml-[15px] ${darkMode ? 'bg-blue-900' : 'bg-blue-100'
-                  }`}
-              >
+              <div className="p-3 rounded-full ml-[15px] bg-[var(--primary-bg)]">
                 <FontAwesomeIcon
                   icon={getCategoryIcon(category)}
-                  className={`text-xl ${darkMode ? 'text-blue-300' : 'text-blue-600 '
-                    }`}
+                  className="text-xl text-[var(--primary)]"
                 />
               </div>
-              <div >
-                <h3 className={`text-lg font-bold ${darkMode ? 'text-gray-100' : 'text-gray-800 mr-1' 
-                  }`}>
-                  {category}
-                </h3>
-                <p className={`${darkMode ? 'text-gray-400' : 'text-gray-500'
-                  } text-sm`}>
+              <div>
+                <h3 className="text-lg font-bold text-[var(--foreground)] mr-1">{category}</h3>
+                <p className="text-[var(--muted-foreground)] text-sm">
                   {Array.isArray(azkarData[category][0])
                     ? azkarData[category].flat().length
                     : azkarData[category].length} ذكر
@@ -102,7 +82,6 @@ const DuaService = () => {
     );
   };
 
-  // عرض الأذكار حسب التصنيف
   const renderAzkar = () => {
     const azkar = filteredAzkar();
 
@@ -114,35 +93,24 @@ const DuaService = () => {
               setSelectedCategory(null);
               setSearchQuery('');
             }}
-            className={`flex items-center px-4 py-2 rounded-lg ${darkMode ? 'text-blue-300 hover:bg-gray-600' : 'text-blue-600 hover:bg-blue-50'
-              } transition-colors`}
+            className="flex items-center px-4 py-2 rounded-lg text-[var(--primary)] hover:bg-[var(--card-hover)] transition-colors"
           >
             <FontAwesomeIcon icon={faArrowLeft} className="ml-2" />
             العودة للتصنيفات
           </button>
-
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            className={`p-2 rounded-full ${darkMode ? 'bg-gray-600 text-yellow-300' : 'bg-gray-200 text-gray-700'
-              }`}
-          >
-            <FontAwesomeIcon icon={darkMode ? faSun : faMoon} />
-          </button>
         </div>
 
-        <h2 className={`text-2xl font-bold mb-6 flex items-center ${darkMode ? 'text-gray-100' : 'text-gray-800'
-          }`}>
+        <h2 className="text-2xl font-bold mb-6 flex items-center text-[var(--foreground)]">
           <FontAwesomeIcon
             icon={getCategoryIcon(selectedCategory)}
             className="ml-2"
-            color={darkMode ? '#93c5fd' : '#2563eb'}
+            color="var(--primary)"
           />
           {selectedCategory}
         </h2>
 
         {azkar.length === 0 ? (
-          <div className={`text-center py-8 rounded-lg ${darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-50 text-gray-500'
-            }`}>
+          <div className="text-center py-8 rounded-lg bg-[var(--card)] text-[var(--muted-foreground)]">
             {searchQuery ? 'لا توجد نتائج تطابق بحثك' : 'لا توجد أذكار متاحة'}
           </div>
         ) : (
@@ -150,30 +118,22 @@ const DuaService = () => {
             {azkar.map((zekr, index) => (
               <div
                 key={index}
-                className={`rounded-lg p-6 shadow-sm transition-all duration-300 ${darkMode
-                    ? 'bg-gray-700 border-gray-600 hover:bg-gray-600'
-                    : 'bg-white border-gray-200 hover:bg-gray-50'
-                  } border`}
+                className="rounded-lg p-6 shadow-sm transition-all duration-300 bg-[var(--card)] border border-[var(--border)] hover:bg-[var(--card-hover)]"
               >
-                <div className={`text-right text-lg leading-relaxed font-arabic ${darkMode ? 'text-gray-100' : 'text-gray-800'
-                  }`}>
+                <div className="text-right text-lg leading-relaxed font-arabic text-[var(--foreground)]">
                   {zekr.content}
                 </div>
 
                 {(zekr.description || zekr.count !== '1') && (
                   <div className="mt-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                     {zekr.description && (
-                      <div className={`text-sm p-2 rounded ${darkMode ? 'bg-gray-600 text-gray-300' : 'bg-gray-50 text-gray-600'
-                        }`}>
+                      <div className="text-sm p-2 rounded bg-[var(--card-hover)] text-[var(--muted-foreground)]">
                         {zekr.description}
                       </div>
                     )}
 
                     {zekr.count !== '1' && (
-                      <span className={`px-3 py-1 rounded-full text-sm ${darkMode
-                          ? 'bg-blue-900 text-blue-300'
-                          : 'bg-blue-100 text-blue-600'
-                        }`}>
+                      <span className="px-3 py-1 rounded-full text-sm bg-[var(--primary-bg)] text-[var(--primary)]">
                         {zekr.count} مرة
                       </span>
                     )}
@@ -187,7 +147,6 @@ const DuaService = () => {
     );
   };
 
-  // الحصول على الأيقونة المناسبة لكل تصنيف
   const getCategoryIcon = (category) => {
     switch (category) {
       case 'أذكار الصباح': return faSun;
@@ -199,73 +158,57 @@ const DuaService = () => {
   };
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'} py-8 px-4 sm:px-6`} dir="rtl">
+    <div className="min-h-screen bg-[var(--background)] py-8 px-4 sm:px-6" dir="rtl">
       <main className="container mx-auto max-w-6xl">
-        {/* العنوان الرئيسي */}
         <div className="text-center mb-8 mt-[75px]">
-          <h1 className={`text-3xl sm:text-4xl font-bold mb-3 ${darkMode ? 'text-gray-100' : 'text-gray-800'
-            }`}>
+          <h1 className="text-3xl sm:text-4xl font-bold mb-3 text-[var(--foreground)]">
             <FontAwesomeIcon
               icon={faBookQuran}
-              className={`ml-2 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}
+              className="ml-2 text-[var(--primary)]"
             />
             الأذكار اليومية
           </h1>
-          <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'} text-sm sm:text-base`}>
+          <p className="text-[var(--muted-foreground)] text-sm sm:text-base">
             مجموعة من الأذكار المأثورة من القرآن والسنة
           </p>
         </div>
 
-        {/* شريط البحث */}
         {selectedCategory && (
           <div className="mb-6">
             <div className="relative max-w-2xl mx-auto">
               <FontAwesomeIcon
                 icon={faSearch}
-                className={`absolute left-3 top-3 ${darkMode ? 'text-gray-400' : 'text-gray-500'
-                  }`}
+                className="absolute left-3 top-3 text-[var(--muted-foreground)]"
               />
               <input
                 type="text"
                 placeholder="ابحث في الأذكار..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className={`w-full rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 ${darkMode
-                    ? 'bg-gray-700 border-gray-600 text-gray-100 focus:ring-blue-500'
-                    : 'bg-white border-gray-300 text-gray-700 focus:ring-blue-500'
-                  } border`}
+                className="w-full rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] focus:ring-[var(--primary)]"
               />
             </div>
           </div>
         )}
 
-        {/* حالة التحميل */}
         {loading && (
           <div className="text-center py-12">
             <FontAwesomeIcon
               icon={faSpinner}
-              className={`animate-spin text-4xl ${darkMode ? 'text-blue-400' : 'text-blue-500'
-                }`}
+              className="animate-spin text-4xl text-[var(--primary)]"
             />
-            <p className={`mt-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              جاري تحميل الأذكار...
-            </p>
+            <p className="mt-4 text-[var(--muted-foreground)]">جاري تحميل الأذكار...</p>
           </div>
         )}
 
-        {/* حالة الخطأ */}
         {error && (
-          <div className={`border-l-4 p-4 mb-6 rounded ${darkMode
-              ? 'bg-red-900 border-red-500 text-red-200'
-              : 'bg-red-50 border-red-400 text-red-700'
-            }`}>
+          <div className="border-l-4 p-4 mb-6 rounded bg-red-50 border-red-400 text-red-700 dark:bg-red-900 dark:border-red-500 dark:text-red-200">
             <div className="flex items-start">
               <div>
                 <p className="font-medium">{error}</p>
                 <button
                   onClick={() => window.location.reload()}
-                  className={`mt-2 ${darkMode ? 'text-red-300 hover:text-red-100' : 'text-red-600 hover:text-red-800'
-                    }`}
+                  className="mt-2 text-red-600 hover:text-red-800 dark:text-red-300 dark:hover:text-red-100"
                 >
                   حاول مرة أخرى
                 </button>
@@ -274,7 +217,6 @@ const DuaService = () => {
           </div>
         )}
 
-        {/* المحتوى الرئيسي */}
         {!loading && !error && (
           <>
             {selectedCategory ? renderAzkar() : renderCategories()}
@@ -282,9 +224,7 @@ const DuaService = () => {
         )}
       </main>
 
-      {/* تذييل الصفحة */}
-      <footer className={`mt-12 text-center text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'
-        }`}>
+      <footer className="mt-12 text-center text-xs text-[var(--muted-foreground)]">
         <div className="container mx-auto px-4">
           جميع الحقوق محفوظة © {new Date().getFullYear()} | بيانات الأذكار مقدمة من Nawaf Alqari
         </div>

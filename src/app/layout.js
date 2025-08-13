@@ -14,15 +14,15 @@ const geistMono = localFont({
 });
 
 export const metadata = {
-  title: "موقع حفظ القرآن",
+  title: "تـبـيـان الـهـدى",
   description: "منصة لحفظ وتلاوة القرآن الكريم بأساليب متعددة",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="ar" dir="rtl">
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[var(--background)] text-[var(--foreground)]`}
       >
         <Navbar />
         {children}

@@ -1,5 +1,17 @@
 "use client";
 import React, { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faBookQuran,
+  faPlay,
+  faPause,
+  faSpinner,
+  faChevronLeft,
+  faChevronRight,
+  faExclamationTriangle,
+  faInfoCircle,
+  faSearch
+} from '@fortawesome/free-solid-svg-icons';
 
 const Hadith = () => {
   const [books] = useState([
@@ -13,14 +25,15 @@ const Hadith = () => {
     { id: 'darimi', name: 'سنن الدارمي' }
   ]);
 
-  const [selectedBook, setSelectedBook] = useState('muslim');
-  const [hadithRange, setHadithRange] = useState({ start: 1, end: 20 }); // تغيير من 5 إلى 20
+  const [selectedBook, setSelectedBook] = useState('bukhari');
+  const [hadithRange, setHadithRange] = useState({ start: 1, end: 20 });
   const [hadiths, setHadiths] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('text');
   const [arabicExplanation, setArabicExplanation] = useState({});
 
+  // Local translation function for static English explanations
   const translateExplanation = (englishText) => {
     const translations = {
       "And it is the famous narration from the Messenger of Allah": "وهو الأثر المشهور عن رسول الله صلى الله عليه وسلم",
@@ -50,13 +63,14 @@ const Hadith = () => {
       setLoading(true);
       setError(null);
       setHadiths([]);
+      setArabicExplanation({});
 
       const response = await fetch(
         `https://api.hadith.gading.dev/books/${selectedBook}?range=${hadithRange.start}-${hadithRange.end}`
       );
 
       if (!response.ok) {
-        throw new Error('فشل في جلب الأحاديث');
+        throw new Error('فشل في جلب الأحاديث. يرجى المحاولة مرة أخرى.');
       }
 
       const data = await response.json();
@@ -65,11 +79,11 @@ const Hadith = () => {
         setHadiths(data.data.hadiths);
         const newExplanations = {};
         data.data.hadiths.forEach(hadith => {
-          newExplanations[hadith.number] = translateExplanation(hadith.id || "No explanation available");
+          newExplanations[hadith.number] = translateExplanation(hadith.id || "لا يوجد شرح متاح لهذا الحديث.");
         });
         setArabicExplanation(newExplanations);
       } else {
-        throw new Error('لا توجد أحاديث متاحة');
+        throw new Error('لا توجد أحاديث متاحة في هذا النطاق.');
       }
     } catch (err) {
       setError(err.message);
@@ -86,47 +100,48 @@ const Hadith = () => {
     const value = parseInt(e.target.value) || 1;
     setHadithRange({
       start: value,
-      end: Math.min(value + 19, 300) // تغيير من +4 إلى +19 ليكون المجموع 20 حديثًا
+      end: Math.min(value + 19, 300)
     });
   };
 
   const formatArabicText = (text) => {
-    return text
-      .replace(/\./g, '.\n')
-      .replace(/،/g, '،\n')
-      .split('\n')
-      .map((line, i) => <p key={i} className="mb-3 text-justify">{line}</p>);
+    return text.split(/(?=[.،؟!])/).map((sentence, i) => (
+      <p key={i} className="mb-4 text-justify leading-relaxed">
+        {sentence.trim()}
+      </p>
+    ));
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-emerald-50 p-4 md:p-8 mt-[75px] font-sans">
-      <div className="max-w-5xl  mx-auto">
+    <div className="min-h-screen bg-background text-foreground py-8 px-4 sm:px-6 transition-colors duration-300">
+      <div className="container mx-auto max-w-5xl">
         {/* Header */}
-        <header className="text-center mb-10">
-          <div className="inline-flex items-center justify-center bg-emerald-100 rounded-full p-3 mb-4">
-            <svg className="w-10 h-10 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-            </svg>
+        <header className="text-center mb-12 mt-16 md:mt-24">
+          <div className="inline-flex items-center justify-center text-primary-foreground bg-primary rounded-full p-4 mb-4 shadow-lg">
+            <FontAwesomeIcon icon={faBookQuran} className="w-10 h-10" />
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-emerald-800 mb-3 font-sans">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-foreground mb-3 font-tajawal">
             مكتبة الأحاديث النبوية
           </h1>
-          <p className="text-lg text-gray-600 font-medium max-w-2xl mx-auto">
+          <p className="text-lg text-foreground/70 font-medium max-w-2xl mx-auto">
             موسوعة علمية محكمة لأحاديث رسول الله صلى الله عليه وسلم
           </p>
         </header>
 
         {/* Search Controls */}
-        <div className="bg-white rounded-xl shadow-md p-6 mb-8 border border-emerald-100">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-card text-card-foreground rounded-xl shadow-xl p-6 md:p-8 mb-12 border border-card/50">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 font-sans">
+              <label className="block text-sm font-medium mb-2">
                 اختر كتاب الحديث
               </label>
               <select
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-lg font-medium transition duration-150"
+                className="w-full p-3 border border-card/50 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-lg font-medium bg-background transition-colors duration-200"
                 value={selectedBook}
-                onChange={(e) => setSelectedBook(e.target.value)}
+                onChange={(e) => {
+                  setSelectedBook(e.target.value);
+                  setHadithRange({ start: 1, end: 20 });
+                }}
                 disabled={loading}
               >
                 {books.map((book) => (
@@ -138,21 +153,21 @@ const Hadith = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 font-sans">
-                رقم الحديث (1-300)
+              <label className="block text-sm font-medium mb-2">
+                نطاق الأحاديث
               </label>
-              <div className="flex items-center space-x-3">
+              <div className="relative flex items-center space-x-4 rtl:space-x-reverse">
                 <input
                   type="number"
-                  className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-center font-medium transition duration-150"
+                  className="w-24 p-3 border border-card/50 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-center font-medium bg-background transition-colors duration-200"
                   value={hadithRange.start}
                   onChange={handleRangeChange}
                   min="1"
-                  max="281" // تغيير من 296 إلى 281 لأننا نريد أن ينتهي عند 300 عندما نضيف 19
+                  max="281"
                   disabled={loading}
                 />
-                <span className="text-gray-500 font-medium">إلى</span>
-                <div className="flex-1 p-3 bg-emerald-50 rounded-lg text-center font-bold text-emerald-800 border border-emerald-100">
+                <span className="text-foreground/50 font-medium">إلى</span>
+                <div className="p-3 w-24 bg-background rounded-lg text-center font-bold border border-card/50">
                   {hadithRange.end}
                 </div>
               </div>
@@ -162,64 +177,59 @@ const Hadith = () => {
 
         {/* Status Messages */}
         {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded-lg flex items-start">
-            <svg className="h-6 w-6 text-red-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">حدث خطأ</h3>
-              <p className="text-sm text-red-700">{error}</p>
+          <div className="bg-red-50/20 dark:bg-red-900/30 border-r-4 border-red-500 p-6 mb-8 rounded-lg flex items-start space-x-4 rtl:space-x-reverse">
+            <FontAwesomeIcon icon={faExclamationTriangle} className="h-7 w-7 text-red-500 flex-shrink-0" />
+            <div className="flex-1">
+              <h3 className="text-lg font-bold text-red-800 dark:text-red-300">حدث خطأ</h3>
+              <p className="text-sm text-red-700 dark:text-red-400 mt-1">{error}</p>
             </div>
           </div>
         )}
 
         {/* Loading Indicator */}
         {loading && (
-          <div className="flex flex-col items-center justify-center py-16">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-emerald-600 mb-5"></div>
-            <p className="text-gray-600 font-medium text-lg">جاري تحميل الأحاديث...</p>
+          <div className="flex flex-col items-center justify-center py-24">
+            <FontAwesomeIcon icon={faSpinner} className="animate-spin text-5xl text-primary mb-6" />
+            <p className="text-foreground/70 font-medium text-lg">جاري تحميل الأحاديث...</p>
           </div>
         )}
 
         {/* Hadith Content */}
         {!loading && hadiths.length > 0 && (
-          <div className="space-y-8">
+          <div className="space-y-12">
             {hadiths.map((hadith) => (
-              <div key={hadith.number} className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 transition duration-300 hover:shadow-lg">
+              <div
+                key={hadith.number}
+                className="bg-card text-card-foreground rounded-xl shadow-xl overflow-hidden border border-card/50 transition-all duration-300 transform hover:scale-[1.01]"
+              >
                 {/* Hadith Header */}
-                <div className="bg-gradient-to-r from-emerald-700 to-emerald-600 px-6 py-4 flex justify-between items-center">
-                  <div className="flex items-center">
-                    <span className="bg-white text-emerald-800 font-bold rounded-full w-9 h-9 flex items-center justify-center mr-3 shadow-sm">
+                <div className="bg-primary text-primary-foreground px-6 py-4 flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0">
+                  <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                    <span className="bg-white text-primary font-bold rounded-full w-10 h-10 flex items-center justify-center shadow-sm text-xl">
                       {hadith.number}
                     </span>
-                    <span className="text-white font-bold text-xl">
-                      {books.find(b => b.id === selectedBook)?.name}
-                    </span>
+                    <span className="font-bold text-xl">{books.find(b => b.id === selectedBook)?.name}</span>
                   </div>
-                  <span className="bg-emerald-800 text-white px-4 py-1.5 rounded-full text-sm font-medium shadow-sm">
+                  <span className="bg-primary/80 text-primary-foreground px-4 py-1.5 rounded-full text-sm font-medium shadow-sm">
                     حديث شريف
                   </span>
                 </div>
 
                 {/* Tabs */}
-                <div className="border-b border-gray-200">
-                  <nav className="flex">
+                <div className="border-b border-card/50">
+                  <nav className="flex justify-center md:justify-start">
                     <button
                       onClick={() => setActiveTab('text')}
-                      className={`px-6 py-4 text-sm font-medium flex items-center ${activeTab === 'text' ? 'text-emerald-600 border-b-2 border-emerald-600' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
+                      className={`px-6 py-4 text-base font-medium flex items-center transition-colors duration-200 ${activeTab === 'text' ? 'text-primary border-b-2 border-primary' : 'text-card-foreground/60 hover:text-card-foreground hover:bg-card/50'}`}
                     >
-                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
+                      <FontAwesomeIcon icon={faBookQuran} className="w-5 h-5 ml-2" />
                       نص الحديث
                     </button>
                     <button
                       onClick={() => setActiveTab('explanation')}
-                      className={`px-6 py-4 text-sm font-medium flex items-center ${activeTab === 'explanation' ? 'text-emerald-600 border-b-2 border-emerald-600' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
+                      className={`px-6 py-4 text-base font-medium flex items-center transition-colors duration-200 ${activeTab === 'explanation' ? 'text-primary border-b-2 border-primary' : 'text-card-foreground/60 hover:text-card-foreground hover:bg-card/50'}`}
                     >
-                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
+                      <FontAwesomeIcon icon={faInfoCircle} className="w-5 h-5 ml-2" />
                       شرح الحديث
                     </button>
                   </nav>
@@ -229,25 +239,21 @@ const Hadith = () => {
                 <div className="p-6 md:p-8">
                   {activeTab === 'text' ? (
                     <div>
-                      <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center">
-                        <svg className="w-6 h-6 text-emerald-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
-                        </svg>
+                      <h3 className="text-xl font-bold mb-6 flex items-center space-x-3 rtl:space-x-reverse">
+                        <FontAwesomeIcon icon={faBookQuran} className="w-6 h-6 text-primary" />
                         نص الحديث الشريف
                       </h3>
-                      <div className="text-gray-800 text-2xl leading-loose font-arabic text-right">
+                      <div className="text-foreground/90 text-2xl leading-loose font-arabic text-right">
                         {formatArabicText(hadith.arab)}
                       </div>
                     </div>
                   ) : (
                     <div>
-                      <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center">
-                        <svg className="w-6 h-6 text-emerald-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                        </svg>
+                      <h3 className="text-xl font-bold mb-6 flex items-center space-x-3 rtl:space-x-reverse">
+                        <FontAwesomeIcon icon={faInfoCircle} className="w-6 h-6 text-primary" />
                         شرح الحديث
                       </h3>
-                      <div className="text-gray-700 leading-relaxed text-lg">
+                      <div className="text-foreground/80 leading-relaxed text-lg">
                         {arabicExplanation[hadith.number] ? (
                           <div className="space-y-5">
                             {arabicExplanation[hadith.number].split('\n').map((paragraph, i) => (
@@ -255,13 +261,11 @@ const Hadith = () => {
                             ))}
                           </div>
                         ) : (
-                          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg">
-                            <div className="flex items-start">
-                              <svg className="h-5 w-5 text-yellow-500 mt-0.5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                              </svg>
-                              <p className="text-yellow-700">جاري تحضير الشرح لهذا الحديث...</p>
-                            </div>
+                          <div className="bg-accent/10 border-r-4 border-accent p-6 rounded-lg flex items-start space-x-4 rtl:space-x-reverse">
+                            <FontAwesomeIcon icon={faInfoCircle} className="h-7 w-7 text-accent" />
+                            <p className="text-accent-foreground text-lg">
+                              لا يوجد شرح متاح لهذا الحديث.
+                            </p>
                           </div>
                         )}
                       </div>
@@ -275,57 +279,51 @@ const Hadith = () => {
 
         {/* Navigation Buttons */}
         {!loading && hadiths.length > 0 && (
-          <div className="flex justify-between mt-6 mb-12">
+          <div className="flex justify-between mt-12 mb-12">
             <button
               onClick={() => setHadithRange(prev => ({
-                start: Math.max(1, prev.start - 20), // تغيير من -5 إلى -20
-                end: Math.max(20, prev.end - 20) // تغيير من -5 إلى -20
+                start: Math.max(1, prev.start - 20),
+                end: Math.max(20, prev.end - 20)
               }))}
               disabled={hadithRange.start <= 1 || loading}
-              className={`px-6 py-3 rounded-lg flex items-center transition duration-150 ${hadithRange.start <= 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+              className={`px-6 py-3 rounded-lg flex items-center space-x-2 rtl:space-x-reverse transition-colors duration-200 shadow-md ${hadithRange.start <= 1 ? 'bg-secondary/20 text-secondary-foreground/40 cursor-not-allowed' : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'}`}
             >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              الصفحة السابقة
+              <FontAwesomeIcon icon={faChevronRight} className="w-4 h-4" />
+              <span>الصفحة السابقة</span>
             </button>
             <button
               onClick={() => setHadithRange(prev => ({
-                start: prev.start + 20, // تغيير من +5 إلى +20
-                end: Math.min(prev.end + 20, 300) // تغيير من +5 إلى +20
+                start: prev.start + 20,
+                end: Math.min(prev.end + 20, 300)
               }))}
               disabled={hadithRange.end >= 300 || loading}
-              className={`px-6 py-3 rounded-lg flex items-center transition duration-150 ${hadithRange.end >= 300 ? 'bg-emerald-400 text-white cursor-not-allowed' : 'bg-emerald-600 text-white hover:bg-emerald-700'}`}
+              className={`px-6 py-3 rounded-lg flex items-center space-x-2 rtl:space-x-reverse transition-colors duration-200 shadow-md ${hadithRange.end >= 300 ? 'bg-secondary/20 text-secondary-foreground/40 cursor-not-allowed' : 'bg-primary text-primary-foreground hover:bg-primary/80'}`}
             >
-              الصفحة التالية
-              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+              <span>الصفحة التالية</span>
+              <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
             </button>
           </div>
         )}
 
         {/* Empty State */}
         {!loading && hadiths.length === 0 && !error && (
-          <div className="bg-white rounded-xl shadow-md p-8 text-center border border-gray-200">
-            <div className="mx-auto h-28 w-28 bg-emerald-100 rounded-full flex items-center justify-center mb-5">
-              <svg className="h-14 w-14 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
+          <div className="bg-card text-card-foreground rounded-xl shadow-xl p-8 md:p-12 text-center border border-card/50">
+            <div className="mx-auto h-28 w-28 text-primary bg-primary/20 rounded-full flex items-center justify-center mb-5">
+              <FontAwesomeIcon icon={faBookQuran} className="h-16 w-16" />
             </div>
-            <h3 className="text-xl font-bold text-gray-800 mb-3">لا توجد أحاديث</h3>
-            <p className="text-gray-600 mb-5 text-lg">اختر كتاباً ونطاقاً مناسباً لعرض الأحاديث</p>
+            <h3 className="text-xl font-bold mb-3">لا توجد أحاديث</h3>
+            <p className="text-foreground/70 mb-5 text-lg">اختر كتاباً ونطاقاً مناسباً لعرض الأحاديث.</p>
             <button
-              onClick={() => setHadithRange({ start: 1, end: 20 })} // تغيير من 5 إلى 20
-              className="px-6 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition duration-150 text-lg"
+              onClick={() => {
+                setHadithRange({ start: 1, end: 20 });
+                fetchHadiths();
+              }}
+              className="px-8 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/80 transition-colors duration-200 text-lg shadow-md"
             >
               عرض الأحاديث الأولى
             </button>
           </div>
         )}
-
-        {/* Footer */}
-        
       </div>
     </div>
   );
