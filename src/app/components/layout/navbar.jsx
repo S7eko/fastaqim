@@ -67,20 +67,20 @@ const Navbar = () => {
             </li>
             <li className="w-full lg:w-auto border-b lg:border-b-0 border-green-600">
               <Link
-                href="#"
+                href="/apprefrance/duaService"
                 className="hover:text-yellow-300 py-3 px-6 lg:py-2 lg:px-4 transition-colors duration-200 block text-center lg:text-right"
                 onClick={() => setIsOpen(false)}
               >
-                ربط الآيات
+                 الادعاء
               </Link>
             </li>
             <li className="w-full lg:w-auto">
               <Link
-                href="#"
+                href="/apprefrance/tafsir"
                 className="hover:text-yellow-300 py-3 px-6 lg:py-2 lg:px-4 transition-colors duration-200 block text-center lg:text-right"
                 onClick={() => setIsOpen(false)}
               >
-                الحصون الخمسة
+                التفسير 
               </Link>
             </li>
           </ul>
