@@ -1,247 +1,290 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBookQuran, faMosque, faPray, faSearch, faSpinner, faExclamationTriangle, faSyncAlt } from '@fortawesome/free-solid-svg-icons';
+import {
+  faSun,
+  faMoon,
+  faPrayingHands,
+  faBed,
+  faSearch,
+  faSpinner,
+  faArrowLeft,
+  faBookQuran
+} from '@fortawesome/free-solid-svg-icons';
 
 const DuaService = () => {
-  // State management
-  const [duas, setDuas] = useState([]);
-  const [azkar, setAzkar] = useState([]);
+  const [azkarData, setAzkarData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('duas');
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [retryCount, setRetryCount] = useState(0);
+  const [darkMode, setDarkMode] = useState(false);
 
-  // API endpoints
-  const API_ENDPOINTS = {
-    duas: '/api/duas', // Using the new proxy endpoint
-    azkar: '/api/azkar' // Using the new proxy endpoint
-  };
-
-  // Fetch data with retry mechanism
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const [duasResponse, azkarResponse] = await Promise.all([
-        fetch(API_ENDPOINTS.duas),
-        fetch(API_ENDPOINTS.azkar)
-      ]);
-
-      // Validate responses
-      if (!duasResponse.ok || !azkarResponse.ok) {
-        throw new Error('فشل في تحميل البيانات من الخادم');
-      }
-
-      const [duasData, azkarData] = await Promise.all([
-        duasResponse.json(),
-        azkarResponse.json()
-      ]);
-
-      // Validate data structure
-      if (!duasData?.quran_duas || !azkarData?.adhan_azkar) {
-        throw new Error('بيانات غير صالحة من الخادم');
-      }
-
-      setDuas(duasData.quran_duas);
-      setAzkar(azkarData.adhan_azkar);
-    } catch (err) {
-      console.error('Fetch error:', err);
-      setError(err.message);
-
-      // Auto-retry up to 3 times
-      if (retryCount < 3) {
-        setTimeout(() => {
-          setRetryCount(retryCount + 1);
-        }, 2000);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Initial fetch and retry on count change
+  // جلب بيانات الأذكار من API
   useEffect(() => {
-    fetchData();
-  }, [retryCount]);
+    const fetchAzkar = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('https://raw.githubusercontent.com/nawafalqari/azkar-api/56df51279ab6eb86dc2f6202c7de26c8948331c1/azkar.json');
+        if (!response.ok) {
+          throw new Error('فشل في تحميل بيانات الأذكار');
+        }
+        const data = await response.json();
+        setAzkarData(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Filter data based on search query
-  const filterData = (data) => {
-    return data.filter(item =>
-      item.text.toLowerCase().includes(searchQuery.toLowerCase())
+    fetchAzkar();
+  }, []);
+
+  // تصفية الأذكار حسب البحث
+  const filteredAzkar = () => {
+    if (!selectedCategory || !azkarData) return [];
+
+    const categoryData = azkarData[selectedCategory];
+    if (!categoryData) return [];
+
+    const flattenedData = Array.isArray(categoryData[0]) ? categoryData.flat() : categoryData;
+
+    return flattenedData.filter(item =>
+      item.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()))
     );
   };
 
-  // Error component
-  const ErrorMessage = () => (
-    <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6 rounded">
-      <div className="flex items-center">
-        <FontAwesomeIcon
-          icon={faExclamationTriangle}
-          className="text-red-400 mr-2"
-        />
-        <div>
-          <p className="text-red-700 font-medium">{error}</p>
-          <button
-            onClick={() => {
-              setRetryCount(0);
-              fetchData();
-            }}
-            className="mt-2 text-red-600 hover:text-red-800 flex items-center"
-          >
-            <FontAwesomeIcon icon={faSyncAlt} className="mr-1" />
-            حاول مرة أخرى
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+  // عرض تصنيفات الأذكار
+  const renderCategories = () => {
+    if (!azkarData) return null;
 
-  // Loading component
-  const LoadingIndicator = () => (
-    <div className="flex justify-center py-12">
-      <FontAwesomeIcon
-        icon={faSpinner}
-        className="animate-spin text-4xl text-blue-500"
-      />
-    </div>
-  );
-
-  // Empty state component
-  const EmptyState = () => (
-    <div className="text-center py-12 text-gray-500">
-      لا توجد بيانات متاحة حاليًا
-    </div>
-  );
-
-  // Tab content component
-  const TabContent = ({ data, type }) => {
-    const filteredData = filterData(data);
-
-    if (filteredData.length === 0) {
-      return searchQuery ? (
-        <div className="text-center py-8 text-gray-500">
-          لا توجد نتائج تطابق بحثك
-        </div>
-      ) : (
-        <EmptyState />
-      );
-    }
+    const categories = Object.keys(azkarData).filter(cat => cat !== 'stop');
 
     return (
-      <>
-        <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center">
-          <FontAwesomeIcon
-            icon={type === 'duas' ? faPray : faMosque}
-            className="ml-2"
-            color={type === 'duas' ? '#3B82F6' : '#10B981'}
-          />
-          {type === 'duas' ? 'الأدعية القرآنية' : 'أذكار الأذان'}
-        </h2>
-
-        {filteredData.map(item => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+        {categories.map(category => (
           <div
-            key={item.id}
-            className="bg-white rounded-lg border border-gray-200 p-6 mb-4 shadow-sm hover:shadow-md transition-all"
+            key={category}
+            onClick={() => setSelectedCategory(category)}
+            className={`p-5 rounded-xl shadow-sm cursor-pointer transition-all duration-300 transform hover:scale-[1.02] ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-white hover:bg-gray-50'
+              } border ${darkMode ? 'border-gray-600' : 'border-gray-200'
+              }`}
           >
-            <div className="text-right text-lg leading-relaxed text-gray-800 font-arabic">
-              {item.text}
-            </div>
-            <div className="mt-4 flex justify-end">
-              <span className={`px-3 py-1 rounded-full text-sm ${type === 'duas'
-                ? 'bg-blue-100 text-blue-600'
-                : 'bg-green-100 text-green-600'
+            <div className="flex items-center">
+              <div className={`p-3 rounded-full mr-4 ${darkMode ? 'bg-blue-900' : 'bg-blue-100'
                 }`}>
-                {item.count} مرة
-              </span>
+                <FontAwesomeIcon
+                  icon={getCategoryIcon(category)}
+                  className={`text-xl ${darkMode ? 'text-blue-300' : 'text-blue-600'
+                    }`}
+                />
+              </div>
+              <div>
+                <h3 className={`text-lg font-bold ${darkMode ? 'text-gray-100' : 'text-gray-800'
+                  }`}>
+                  {category}
+                </h3>
+                <p className={`${darkMode ? 'text-gray-400' : 'text-gray-500'
+                  } text-sm`}>
+                  {Array.isArray(azkarData[category][0])
+                    ? azkarData[category].flat().length
+                    : azkarData[category].length} ذكر
+                </p>
+              </div>
             </div>
           </div>
         ))}
-      </>
+      </div>
     );
   };
 
+  // عرض الأذكار حسب التصنيف
+  const renderAzkar = () => {
+    const azkar = filteredAzkar();
+
+    return (
+      <div className="mt-6">
+        <div className="flex justify-between items-center mb-6">
+          <button
+            onClick={() => {
+              setSelectedCategory(null);
+              setSearchQuery('');
+            }}
+            className={`flex items-center px-4 py-2 rounded-lg ${darkMode ? 'text-blue-300 hover:bg-gray-600' : 'text-blue-600 hover:bg-blue-50'
+              } transition-colors`}
+          >
+            <FontAwesomeIcon icon={faArrowLeft} className="ml-2" />
+            العودة للتصنيفات
+          </button>
+
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className={`p-2 rounded-full ${darkMode ? 'bg-gray-600 text-yellow-300' : 'bg-gray-200 text-gray-700'
+              }`}
+          >
+            <FontAwesomeIcon icon={darkMode ? faSun : faMoon} />
+          </button>
+        </div>
+
+        <h2 className={`text-2xl font-bold mb-6 flex items-center ${darkMode ? 'text-gray-100' : 'text-gray-800'
+          }`}>
+          <FontAwesomeIcon
+            icon={getCategoryIcon(selectedCategory)}
+            className="ml-2"
+            color={darkMode ? '#93c5fd' : '#2563eb'}
+          />
+          {selectedCategory}
+        </h2>
+
+        {azkar.length === 0 ? (
+          <div className={`text-center py-8 rounded-lg ${darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-50 text-gray-500'
+            }`}>
+            {searchQuery ? 'لا توجد نتائج تطابق بحثك' : 'لا توجد أذكار متاحة'}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {azkar.map((zekr, index) => (
+              <div
+                key={index}
+                className={`rounded-lg p-6 shadow-sm transition-all duration-300 ${darkMode
+                    ? 'bg-gray-700 border-gray-600 hover:bg-gray-600'
+                    : 'bg-white border-gray-200 hover:bg-gray-50'
+                  } border`}
+              >
+                <div className={`text-right text-lg leading-relaxed font-arabic ${darkMode ? 'text-gray-100' : 'text-gray-800'
+                  }`}>
+                  {zekr.content}
+                </div>
+
+                {(zekr.description || zekr.count !== '1') && (
+                  <div className="mt-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                    {zekr.description && (
+                      <div className={`text-sm p-2 rounded ${darkMode ? 'bg-gray-600 text-gray-300' : 'bg-gray-50 text-gray-600'
+                        }`}>
+                        {zekr.description}
+                      </div>
+                    )}
+
+                    {zekr.count !== '1' && (
+                      <span className={`px-3 py-1 rounded-full text-sm ${darkMode
+                          ? 'bg-blue-900 text-blue-300'
+                          : 'bg-blue-100 text-blue-600'
+                        }`}>
+                        {zekr.count} مرة
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // الحصول على الأيقونة المناسبة لكل تصنيف
+  const getCategoryIcon = (category) => {
+    switch (category) {
+      case 'أذكار الصباح': return faSun;
+      case 'أذكار المساء': return faMoon;
+      case 'أذكار بعد السلام من الصلاة المفروضة': return faPrayingHands;
+      case 'أذكار النوم': return faBed;
+      default: return faBookQuran;
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 pt-24 pb-16" dir="rtl">
-      <main className="container mx-auto px-4 max-w-4xl">
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">الأدعية والأذكار</h1>
-          <p className="text-gray-600">مجموعة من الأدعية القرآنية وأذكار الأذان</p>
-        </div>
-
-        {/* Error Message */}
-        {error && <ErrorMessage />}
-
-        {/* Tab Navigation */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8 border border-gray-200">
-          <div className="flex">
-            <button
-              onClick={() => setActiveTab('duas')}
-              className={`flex-1 py-5 flex flex-col items-center justify-center transition-all ${activeTab === 'duas'
-                ? 'bg-gradient-to-b from-blue-50 to-blue-100 text-blue-600 border-b-2 border-blue-500 shadow-inner'
-                : 'bg-white text-gray-500 hover:bg-gray-50 hover:text-blue-500'
-                }`}
-            >
-              <FontAwesomeIcon
-                icon={faBookQuran}
-                className={`text-lg mb-2 transition-all ${activeTab === 'duas' ? 'scale-110' : ''}`}
-              />
-              <span className="text-sm font-medium">الأدعية القرآنية</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('azkar')}
-              className={`flex-1 py-5 flex flex-col items-center justify-center transition-all ${activeTab === 'azkar'
-                ? 'bg-gradient-to-b from-green-50 to-green-100 text-green-600 border-b-2 border-green-500 shadow-inner'
-                : 'bg-white text-gray-500 hover:bg-gray-50 hover:text-green-500'
-                }`}
-            >
-              <FontAwesomeIcon
-                icon={faMosque}
-                className={`text-lg mb-2 transition-all ${activeTab === 'azkar' ? 'scale-110' : ''}`}
-              />
-              <span className="text-sm font-medium">أذكار الأذان</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Search Bar */}
-        <div className="mb-6">
-          <div className="relative">
+    <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'} py-8 px-4 sm:px-6`} dir="rtl">
+      <main className="container mx-auto max-w-6xl">
+        {/* العنوان الرئيسي */}
+        <div className="text-center mb-8">
+          <h1 className={`text-3xl sm:text-4xl font-bold mb-3 ${darkMode ? 'text-gray-100' : 'text-gray-800'
+            }`}>
             <FontAwesomeIcon
-              icon={faSearch}
-              className="absolute left-3 top-3 text-gray-400"
+              icon={faBookQuran}
+              className={`ml-2 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}
             />
-            <input
-              type="text"
-              placeholder="ابحث في الأدعية أو الأذكار..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white border border-gray-200 text-gray-700 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
+            الأذكار اليومية
+          </h1>
+          <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'} text-sm sm:text-base`}>
+            مجموعة من الأذكار المأثورة من القرآن والسنة
+          </p>
         </div>
 
-        {/* Content */}
-        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-          {loading ? (
-            <LoadingIndicator />
-          ) : (
-            <TabContent
-              data={activeTab === 'duas' ? duas : azkar}
-              type={activeTab}
+        {/* شريط البحث */}
+        {selectedCategory && (
+          <div className="mb-6">
+            <div className="relative max-w-2xl mx-auto">
+              <FontAwesomeIcon
+                icon={faSearch}
+                className={`absolute left-3 top-3 ${darkMode ? 'text-gray-400' : 'text-gray-500'
+                  }`}
+              />
+              <input
+                type="text"
+                placeholder="ابحث في الأذكار..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={`w-full rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 ${darkMode
+                    ? 'bg-gray-700 border-gray-600 text-gray-100 focus:ring-blue-500'
+                    : 'bg-white border-gray-300 text-gray-700 focus:ring-blue-500'
+                  } border`}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* حالة التحميل */}
+        {loading && (
+          <div className="text-center py-12">
+            <FontAwesomeIcon
+              icon={faSpinner}
+              className={`animate-spin text-4xl ${darkMode ? 'text-blue-400' : 'text-blue-500'
+                }`}
             />
-          )}
-        </div>
+            <p className={`mt-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              جاري تحميل الأذكار...
+            </p>
+          </div>
+        )}
+
+        {/* حالة الخطأ */}
+        {error && (
+          <div className={`border-l-4 p-4 mb-6 rounded ${darkMode
+              ? 'bg-red-900 border-red-500 text-red-200'
+              : 'bg-red-50 border-red-400 text-red-700'
+            }`}>
+            <div className="flex items-start">
+              <div>
+                <p className="font-medium">{error}</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className={`mt-2 ${darkMode ? 'text-red-300 hover:text-red-100' : 'text-red-600 hover:text-red-800'
+                    }`}
+                >
+                  حاول مرة أخرى
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* المحتوى الرئيسي */}
+        {!loading && !error && (
+          <>
+            {selectedCategory ? renderAzkar() : renderCategories()}
+          </>
+        )}
       </main>
 
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 py-4 text-center text-xs text-gray-500 shadow-lg">
+      {/* تذييل الصفحة */}
+      <footer className={`mt-12 text-center text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'
+        }`}>
         <div className="container mx-auto px-4">
-          جميع الحقوق محفوظة © {new Date().getFullYear()} منصة القرآن الكريم
+          جميع الحقوق محفوظة © {new Date().getFullYear()} | بيانات الأذكار مقدمة من Nawaf Alqari
         </div>
       </footer>
     </div>
