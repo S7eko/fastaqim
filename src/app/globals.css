@@ -54,3 +54,17 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ✅ تصليح مشكلة الـ option */
+select option {
+  color: #000 !important;
+  /* النص يظهر أسود في الوضع العادي */
+  background: #fff !important;
+}
+
+.dark select option {
+  color: #fff !important;
+  /* النص يظهر أبيض في الوضع الداكن */
+  background: #1f2937 !important;
+  /* خلفية رمادي داكن (Tailwind gray-800) */
+}
