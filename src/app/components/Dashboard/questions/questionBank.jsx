@@ -219,7 +219,10 @@ const QuestionBank = () => {
           className="text-center mb-12 p-8 rounded-2xl shadow-xl bg-secondary text-secondary-foreground relative overflow-hidden"
         >
           <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 left-0 w-full h-full bg-repeat" style={{ backgroundImage: "url('data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><text x='20' y='50' font-family='Arial' font-size='20' fill='white'>﷽</text></svg>')" }}></div>
+            <div
+              className="absolute top-0 left-0 w-full h-full bg-repeat"
+              style={{ backgroundImage: "url(&quot;data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><text x='20' y='50' font-family='Arial' font-size='20' fill='white'>﷽</text></svg>&quot;)" }}
+            ></div>
           </div>
           <motion.div
             whileHover={{ scale: 1.1 }}
@@ -248,7 +251,7 @@ const QuestionBank = () => {
         {/* Main Content Area */}
         <div className="grid grid-cols-1 md:grid-cols-[1.5fr_3fr] gap-10">
           {/* Left Column: Part Selection */}
-          <div className="">
+          <div>
             <motion.div
               initial="hidden"
               animate="visible"
@@ -307,7 +310,7 @@ const QuestionBank = () => {
           </div>
 
           {/* Right Column: Questions Management */}
-          <div className="">
+          <div>
             {!selectedPart ? (
               <motion.div
                 initial={{ opacity: 0 }}
