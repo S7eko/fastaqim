@@ -160,7 +160,7 @@ const Navbar = () => {
                 الرئيسية
               </Link>
             </li>
-            <li className="border-b border-green-600 dark:border-gray-700">
+            {/* <li className="border-b border-green-600 dark:border-gray-700">
               <Link
                 href="/apprefrance/dashboard"
                 className="hover:text-yellow-300 py-3 px-6 transition-colors duration-200 block text-center dark:hover:text-yellow-400"
@@ -168,7 +168,7 @@ const Navbar = () => {
               >
                 لوحة التحكم
               </Link>
-            </li>
+            </li> */}
             <li className="border-b border-green-600 dark:border-gray-700">
               <Link
                 href="/apprefrance/hadeeth"
