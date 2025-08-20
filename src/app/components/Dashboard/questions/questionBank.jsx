@@ -580,7 +580,7 @@ const QuestionBank = () => {
                           <FontAwesomeIcon icon={faBookOpen} className="text-4xl text-border mb-3" />
                         </motion.div>
                         <p className="text-foreground/80">لا توجد أسئلة مخزنة في هذا الجزء.</p>
-                        <p className="text-foreground/50 text-sm mt-1">يمكنك إضافة أسئلة من خلال الضغط على زر "إضافة أسئلة جديدة" أعلاه.</p>
+                        <p className="text-foreground/80">يمكنك اضافة سؤالًا جديدًا.</p>
                       </motion.div>
                     )}
                   </motion.div>
